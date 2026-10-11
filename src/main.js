@@ -687,6 +687,9 @@ function setupFloatingToolbars() {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
       stripTheme.innerHTML = getIconHtml(isDark ? 'Sun' : 'Moon', { size: 18 });
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({ type: 'theme_changed', isDark });
+      }
     };
   }
 

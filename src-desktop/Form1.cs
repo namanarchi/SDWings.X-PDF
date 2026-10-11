@@ -55,8 +55,56 @@ public partial class Form1 : Form
         Load += Form1_Load;
     }
 
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+
+    private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+    private const int DWMWA_CAPTION_COLOR = 35;
+    private const int DWMWA_TEXT_COLOR = 36;
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        ApplyTitleBarTheme(false);
+    }
+
+    public void ApplyTitleBarTheme(bool isDark)
+    {
+        try
+        {
+            if (isDark)
+            {
+                int darkMode = 1;
+                DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref darkMode, sizeof(int));
+
+                // Caption background: #121417 -> COLORREF (0x00BBGGRR): 0x00171412
+                int captionColor = 0x00171412;
+                DwmSetWindowAttribute(Handle, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(int));
+
+                // Caption text: #F9FAFB -> COLORREF (0x00BBGGRR): 0x00FBFAF9
+                int textColor = 0x00FBFAF9;
+                DwmSetWindowAttribute(Handle, DWMWA_TEXT_COLOR, ref textColor, sizeof(int));
+            }
+            else
+            {
+                int darkMode = 0;
+                DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref darkMode, sizeof(int));
+
+                // Caption background matches app background #f2f1ec -> COLORREF (0x00BBGGRR): 0x00ECF1F2
+                int captionColor = 0x00ECF1F2;
+                DwmSetWindowAttribute(Handle, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(int));
+
+                // Caption text matches primary text #111827 -> COLORREF (0x00BBGGRR): 0x00271811
+                int textColor = 0x00271811;
+                DwmSetWindowAttribute(Handle, DWMWA_TEXT_COLOR, ref textColor, sizeof(int));
+            }
+        }
+        catch { }
+    }
+
     private async void Form1_Load(object? sender, EventArgs e)
     {
+        ApplyTitleBarTheme(false);
         try
         {
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -69,6 +117,20 @@ public partial class Form1 : Form
             webView.CoreWebView2.Settings.IsStatusBarEnabled = false;
             webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
             webView.CoreWebView2.Settings.IsZoomControlEnabled = false;
+
+            webView.CoreWebView2.WebMessageReceived += (s, args) =>
+            {
+                try
+                {
+                    string msgJson = args.WebMessageAsJson;
+                    if (msgJson.Contains("theme_changed"))
+                    {
+                        bool isDark = msgJson.Contains("\"isDark\":true");
+                        Invoke(() => ApplyTitleBarTheme(isDark));
+                    }
+                }
+                catch { }
+            };
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string distDir = Path.Combine(baseDir, "dist");
