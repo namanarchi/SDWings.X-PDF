@@ -9,14 +9,20 @@
     <AssemblyName>SDWings.X-PDF</AssemblyName>
     <RootNamespace>SDWings.Desktop</RootNamespace>
     
-    <AssemblyTitle>SDWings.X-PDF</AssemblyTitle>
-    <Product>SDWings.X-PDF · CAD Markup Workbench</Product>
+    <AssemblyTitle>SDWings.X _ PDF Reader</AssemblyTitle>
+    <Product>SDWings.X _ PDF Reader</Product>
     <Company>namanarchi.vn</Company>
     <Version>1.0.0</Version>
     <Authors>namanarchi</Authors>
     <Description>Siêu nhẹ, hiệu năng cao, mượt mà mở nhiều file PDF kiến trúc cùng lúc</Description>
     <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />

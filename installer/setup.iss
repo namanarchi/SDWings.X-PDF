@@ -1,7 +1,7 @@
 ; Inno Setup Script for SDWings.X-PDF
 ; Ultra-lightweight, High-performance CAD PDF Workbench
 
-#define MyAppName "SDWings.X-PDF"
+#define MyAppName "SDWings.X _ PDF Reader"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "namanarchi.vn"
 #define MyAppURL "https://github.com/namanarchi/SDWings.X-PDF"
@@ -15,12 +15,14 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName={autopf}\SDWings.X-PDF
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=..\release
 OutputBaseFilename=SDWings.X-PDF-Setup-v1.0.0
 SetupIconFile=..\src-desktop\app.ico
+UninstallDisplayName={#MyAppName}
+UninstallDisplayIcon={app}\app.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -40,13 +42,13 @@ Source: "..\release\lightweight-win\*"; DestDir: "{app}"; Flags: ignoreversion r
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\app.ico"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"; IconFilename: "{app}\app.ico"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\app.ico"; Tasks: desktopicon
 
 [Registry]
 Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: string; ValueName: "SDWings.X-PDF.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: associatepdf
-Root: HKA; Subkey: "Software\Classes\SDWings.X-PDF.Document"; ValueType: string; ValueName: ""; ValueData: "Tài liệu PDF (SDWings.X-PDF)"; Flags: uninsdeletekey; Tasks: associatepdf
-Root: HKA; Subkey: "Software\Classes\SDWings.X-PDF.Document\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: associatepdf
+Root: HKA; Subkey: "Software\Classes\SDWings.X-PDF.Document"; ValueType: string; ValueName: ""; ValueData: "Tài liệu PDF (SDWings.X _ PDF Reader)"; Flags: uninsdeletekey; Tasks: associatepdf
+Root: HKA; Subkey: "Software\Classes\SDWings.X-PDF.Document\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\app.ico"; Tasks: associatepdf
 Root: HKA; Subkey: "Software\Classes\SDWings.X-PDF.Document\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: associatepdf
 
 [Run]

@@ -19,12 +19,28 @@ public partial class Form1 : Form
 
     private void InitializeWindow()
     {
-        Text = "SDWings.X-PDF · CAD Markup Workbench";
+        Text = "SDWings.X _ PDF Reader";
         Width = 1440;
         Height = 900;
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new System.Drawing.Size(960, 640);
         BackColor = System.Drawing.Color.FromArgb(242, 241, 236);
+
+        // Load unified SDX application icon for window title bar and taskbar
+        try
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string iconPath = Path.Combine(baseDir, "app.ico");
+            if (File.Exists(iconPath))
+            {
+                Icon = new System.Drawing.Icon(iconPath);
+            }
+            else
+            {
+                Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            }
+        }
+        catch { }
 
         webView = new WebView2
         {

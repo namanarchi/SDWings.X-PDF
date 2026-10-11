@@ -2,33 +2,33 @@
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1e293b"/>
-      <stop offset="100%" stop-color="#0a0f1a"/>
+      <stop offset="100%" stop-color="#090d16"/>
     </linearGradient>
     <linearGradient id="blueXGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#60a5fa"/>
       <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
     <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/>
     </filter>
   </defs>
 
   <!-- Squircle Base -->
-  <rect x="14" y="14" width="228" height="228" rx="52" fill="url(#bgGrad)" stroke="#3b82f6" stroke-width="2.5" stroke-opacity="0.7" filter="url(#glow)"/>
+  <rect x="10" y="10" width="236" height="236" rx="48" fill="url(#bgGrad)" stroke="#3b82f6" stroke-width="2.5" stroke-opacity="0.8" filter="url(#glow)"/>
 
   <!-- CAD Blueprint Corner Crosshairs -->
   <g stroke="#60a5fa" stroke-width="1.2" stroke-opacity="0.35">
-    <line x1="36" y1="44" x2="48" y2="44"/>
-    <line x1="44" y1="36" x2="44" y2="48"/>
-    <line x1="208" y1="212" x2="220" y2="212"/>
-    <line x1="212" y1="204" x2="212" y2="216"/>
+    <line x1="28" y1="38" x2="42" y2="38"/>
+    <line x1="38" y1="28" x2="38" y2="42"/>
+    <line x1="214" y1="218" x2="228" y2="218"/>
+    <line x1="218" y1="214" x2="218" y2="228"/>
   </g>
 
   <!-- Brand Typography SDX Centered -->
-  <g transform="translate(128, 122)" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif">
-    <text font-weight="900" font-size="76" letter-spacing="-2px">
+  <g transform="translate(128, 120)" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif">
+    <text font-weight="900" font-size="90" letter-spacing="-2px">
       <tspan fill="#ffffff" dx="-8">SD</tspan><tspan fill="url(#blueXGrad)" dx="2">X</tspan>
     </text>
-    <text y="42" fill="#94a3b8" font-size="16" font-weight="700" letter-spacing="7px" opacity="0.9">PDF</text>
+    <text y="44" fill="#94a3b8" font-size="18" font-weight="700" letter-spacing="8px" opacity="0.9">PDF</text>
   </g>
 </svg>

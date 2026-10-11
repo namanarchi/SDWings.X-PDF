@@ -23,6 +23,11 @@ export class OrganizeGrid {
     this.selectedIds.clear();
     this.pages = [];
 
+    if (!buffer) {
+      this.render();
+      return;
+    }
+
     const loadingTask = pdfjsLib.getDocument({ data: buffer.slice(0) });
     const doc = await loadingTask.promise;
     const numPages = doc.numPages;
@@ -231,6 +236,17 @@ export class OrganizeGrid {
   renderCardsOnly() {
     const grid = this.container.querySelector('#organizeGridContainer');
     if (!grid) return;
+
+    if (!this.currentDocBuffer || this.pages.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-secondary);">
+          <div style="font-size: 36px; margin-bottom: 12px; opacity: 0.7;">📄</div>
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary);">Chưa Có Tài Liệu Đang Mở</h3>
+          <p style="font-size: 13px; max-width: 440px; margin: 0 auto;">Vui lòng mở một tệp PDF từ thanh công cụ hoặc kéo thả tệp PDF vào ứng dụng để sắp xếp trang.</p>
+        </div>
+      `;
+      return;
+    }
 
     grid.innerHTML = this.pages.map((p, idx) => {
       const isSelected = this.selectedIds.has(p.id);
