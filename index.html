@@ -9,58 +9,52 @@
 </head>
 <body>
   <div id="app">
-    <!-- Top Header (Exact BD01 Conference Style with SDWingsX® Branding) -->
+    <!-- Top Header (Clean Architectural Header with Logo Left & Action Toolbar Right) -->
     <header class="app-header">
       <div class="header-left">
-        <span class="header-tag" id="headerCategoryTag">SDWINGS.PDFREADER / ARCHITECTURAL & BIM PDF WORKBENCH</span>
-        <div class="header-title-row">
-          <div class="brand-logo-container" id="brandLogoBtn" title="Nhấp để quay lại các trang PDF đang mở">
-            <div class="brand-line-primary">
-              <span class="brand-main">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-main">PDFReader</span>
-            </div>
-            <div class="brand-line-sub">
-              <span class="brand-by">by</span>
-              <span class="brand-sub-brand"><span class="brand-sub-name">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-sub-x">X</span><sup class="brand-sub-reg">®</sup></span>
-            </div>
+        <div class="brand-logo-container" id="brandLogoBtn" title="Nhấp để quay lại các trang PDF đang mở">
+          <div class="brand-line-primary">
+            <span class="brand-main">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-main">PDFReader</span>
           </div>
-          <span class="brand-title-divider" style="display: none;">/</span>
-          <h1 class="header-title" id="documentTitle" style="display: none;"></h1>
+          <div class="brand-line-sub">
+            <span class="brand-by">by</span>
+            <span class="brand-sub-brand"><span class="brand-sub-name">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-sub-x">X</span><sup class="brand-sub-reg">®</sup></span>
+          </div>
         </div>
+        <span id="documentTitle" style="display: none;"></span>
       </div>
-    </header>
 
-    <!-- Toolbar Primary & Secondary Rows -->
-    <section class="app-toolbar">
-      <!-- Primary Modes (Row 1) -->
-      <div class="toolbar-row">
+      <div class="header-right">
         <div class="pill-group" id="primaryModesGroup">
-          <button class="btn-pill btn-light" data-mode="combine" id="btnModeCombine">
+          <button class="btn-pill btn-light" data-mode="combine" id="btnModeCombine" title="Ghép nối nhiều tệp PDF (Combine PDF)">
             <span data-icon="Files"></span>
             <span>COMBINE PDF</span>
           </button>
-          <button class="btn-pill btn-light" data-mode="split" id="btnModeSplit">
+          <button class="btn-pill btn-light" data-mode="split" id="btnModeSplit" title="Tách & Trích xuất trang PDF (Split / Extract)">
             <span data-icon="Split"></span>
             <span>SPLIT / EXTRACT</span>
           </button>
-          <button class="btn-pill btn-light" data-mode="organize" id="btnModeOrganize">
+          <button class="btn-pill btn-light" data-mode="organize" id="btnModeOrganize" title="Sắp xếp & Quản lý trang (Organize Pages)">
             <span data-icon="LayoutGrid"></span>
             <span>ORGANIZE PAGES</span>
           </button>
         </div>
 
+        <div class="header-actions-divider"></div>
+
         <div class="pill-group">
-          <label class="btn-pill btn-light" title="Mở file PDF từ máy tính">
+          <label class="btn-pill btn-light" title="Mở file PDF từ máy tính (Ctrl+O)">
             <span data-icon="FolderOpen"></span>
             <span>MỞ FILE PDF</span>
             <input type="file" id="globalFileInput" multiple accept=".pdf,application/pdf" style="display:none" />
           </label>
-          <button class="btn-pill btn-dark" id="btnExportPdf" title="Lưu & Xuất file PDF">
+          <button class="btn-pill btn-dark" id="btnExportPdf" title="Lưu & Xuất file PDF (Ctrl+S)">
             <span data-icon="Download"></span>
             <span>LƯU & XUẤT PDF</span>
           </button>
         </div>
       </div>
-    </section>
+    </header>
 
     <!-- Document Tabs Bar (Multi-File Workbench Tabs) -->
     <nav class="app-document-tabs-bar" id="documentTabsBar">

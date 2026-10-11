@@ -4,29 +4,24 @@
 
 /* HEADER SECTION */
 .app-header {
-  padding: 16px 24px 8px 24px;
+  padding: 10px 24px;
   background-color: var(--bg-header);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   z-index: 100;
+  gap: 16px;
 }
 
 .header-left {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
 }
 
 .header-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-secondary);
-  font-weight: 600;
-  margin-bottom: 2px;
+  display: none !important;
 }
 
 .header-title-row {
@@ -139,26 +134,26 @@
 }
 
 .header-right {
-  max-width: 440px;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.header-actions-divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border-subtle);
+  margin: 0 4px;
 }
 
 .header-note {
-  font-family: var(--font-main);
-  font-size: 10px;
-  line-height: 1.4;
-  color: var(--text-secondary);
+  display: none !important;
 }
 
-/* PRIMARY TOOLBAR SECTION */
+/* PRIMARY TOOLBAR SECTION (merged into header) */
 .app-toolbar {
-  padding: 8px 24px 12px 24px;
-  background-color: var(--bg-toolbar);
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 90;
+  display: none !important;
 }
 
 .toolbar-row {
@@ -284,14 +279,43 @@
   background-color: var(--bg-app);
   padding: 32px;
   outline: none;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  overflow-y: scroll !important; /* Hiển thị duy nhất cuộn toàn trang để người dùng dễ kéo */
+  overflow-x: auto;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(100, 116, 139, 0.6) transparent !important;
 }
 
 #readerContainer::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  display: block !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+#readerContainer::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+#readerContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.75) !important;
+  border-radius: 9999px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+}
+
+#readerContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(71, 85, 105, 0.95) !important;
+}
+
+body.dark-mode #readerContainer {
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent !important;
+}
+
+body.dark-mode #readerContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.5) !important;
+}
+
+body.dark-mode #readerContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(203, 213, 225, 0.85) !important;
 }
 
 #readerContainer.active-panel {
