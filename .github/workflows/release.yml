@@ -1,0 +1,62 @@
+name: Build & Release Desktop Installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Publish Desktop Binary
+        run: dotnet publish src-desktop/SDWings.Desktop.csproj -c Release --no-self-contained -o release/lightweight-win
+
+      - name: Copy App Icon
+        run: copy src-desktop\app.ico release\lightweight-win\app.ico
+
+      - name: Create Portable Zip
+        shell: pwsh
+        run: Compress-Archive -Path release/lightweight-win/* -DestinationPath release/SDWings.X-PDF-Portable.zip -Force
+
+      - name: Compile Inno Setup Installer
+        run: iscc installer/setup.iss
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            release/SDWings.X-PDF-Setup-*.exe
+            release/SDWings.X-PDF-Portable.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true

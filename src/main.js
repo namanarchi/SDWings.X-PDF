@@ -286,6 +286,30 @@ function setupPrimaryToolbar() {
     }
   };
 
+  // Native Desktop Host Bridge (Opens PDF files from CLI args, explorer association, or native drag-drop)
+  window.addEventListener('message', async (event) => {
+    if (event.data && event.data.type === 'open_external_pdf') {
+      try {
+        const { name, base64 } = event.data;
+        const binaryStr = atob(base64);
+        const len = binaryStr.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        await tabManager.addTab({
+          name: name || 'Document.pdf',
+          buffer: bytes.buffer,
+          numPages: 1,
+          makeActive: true
+        });
+        showToast(`Đã mở tệp: ${name}`, 'success');
+      } catch (err) {
+        console.error('Failed to open external pdf:', err);
+      }
+    }
+  });
+
   // Save / Export PDF
   document.getElementById('btnExportPdf').onclick = async () => {
     if (!state.docBuffer) return;

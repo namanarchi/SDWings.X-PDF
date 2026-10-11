@@ -352,6 +352,46 @@
   height: 100%;
 }
 
+.pdf-page-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+  background-size: 200% 200%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pdf-page-placeholder.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pdf-placeholder-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* PDF.JS TEXT LAYER & SELECTION */
 .textLayer {
   position: absolute;

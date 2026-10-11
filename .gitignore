@@ -33,3 +33,9 @@ lerna-debug.log*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# .NET Build artifacts
+**/bin/
+**/obj/
+*.user
+release/

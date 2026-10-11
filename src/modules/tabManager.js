@@ -129,6 +129,16 @@ export class TabManager {
     const idx = this.tabs.findIndex(t => t.id === tabId);
     if (idx === -1) return;
 
+    const closedTab = this.tabs[idx];
+    // Explicitly release large ArrayBuffers and memory structures
+    closedTab.buffer = null;
+    if (closedTab.annotationsByPage) {
+      closedTab.annotationsByPage.clear();
+      closedTab.annotationsByPage = null;
+    }
+    closedTab.history = null;
+    closedTab.redoStack = null;
+
     this.tabs.splice(idx, 1);
 
     if (this.tabs.length === 0) {

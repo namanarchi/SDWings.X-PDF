@@ -1,7 +1,7 @@
 import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
-// Configure Mozilla PDF.js worker
+// Configure Mozilla PDF.js worker using locally bundled asset
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export class PdfEngine {
@@ -10,6 +10,7 @@ export class PdfEngine {
     this.onPageChange = options.onPageChange || (() => {});
     this.onDocLoaded = options.onDocLoaded || (() => {});
     this.onZoomChange = options.onZoomChange || (() => {});
+    this.onPageRendered = options.onPageRendered || null;
     
     this.pdfDoc = null;
     this.currentDocBuffer = null;
@@ -20,9 +21,18 @@ export class PdfEngine {
     this.viewMode = 'continuous'; // 'continuous' | 'single' | 'two-up'
     this.layoutCols = 1; // 1, 2, 3, 4 page layout arrangement
     this.rotation = 0; // 0, 90, 180, 270
+
+    // Virtualization & Memory Management State
     this.renderTasks = new Map();
     this.pageCanvases = new Map();
     this.pageSizes = new Map();
+    this.renderedPages = new Set();
+    this.renderQueue = [];
+    this.isProcessingQueue = false;
+    this.viewportObserver = null;
+    this.MAX_CONCURRENT_RENDERS = 2; // Keep worker responsive, zero freezing
+    this.MAX_CACHED_PAGES = 8; // Max heavy canvases kept in VRAM for huge blueprints
+
     this.outlines = [];
     this.pageTextContent = new Map();
 
@@ -31,18 +41,83 @@ export class PdfEngine {
     this.currentSearchMatchIndex = -1;
   }
 
-  async loadFromBuffer(buffer, name = 'document.pdf') {
-    // Cancel existing render tasks
+  /**
+   * Destroys current document instance, revokes GPU canvas backing stores,
+   * cancels all ongoing worker tasks and frees memory.
+   */
+  async destroyCurrentDoc() {
     this.cancelAllRenders();
+    this.renderQueue = [];
+
+    if (this.viewportObserver) {
+      this.viewportObserver.disconnect();
+      this.viewportObserver = null;
+    }
+
+    // Explicitly release GPU texture memory for all canvases
+    for (const [pageNo, info] of this.pageCanvases.entries()) {
+      try {
+        if (info.canvas) {
+          info.canvas.width = 0;
+          info.canvas.height = 0;
+        }
+        if (info.overlay) {
+          info.overlay.width = 0;
+          info.overlay.height = 0;
+        }
+        if (info.textLayerDiv) {
+          info.textLayerDiv.innerHTML = '';
+        }
+      } catch (err) {
+        console.warn('Canvas disposal warning on page', pageNo, err);
+      }
+    }
+
+    this.pageCanvases.clear();
+    this.renderedPages.clear();
+
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+
+    if (this.pdfDoc) {
+      try {
+        await this.pdfDoc.cleanup();
+        await this.pdfDoc.destroy();
+      } catch (e) {
+        // Suppress if worker already terminating
+      }
+      this.pdfDoc = null;
+    }
+
+    this.currentDocBuffer = null;
+    this.pageSizes.clear();
+    this.pageTextContent.clear();
+    this.outlines = [];
+    this.searchMatches = [];
+    this.currentSearchMatchIndex = -1;
+  }
+
+  /**
+   * Loads a PDF document from an ArrayBuffer with memory leak safeguards
+   */
+  async loadFromBuffer(buffer, name = 'document.pdf') {
+    // 1. Fully release previous document and all allocated GPU textures
+    if (this.pdfDoc) {
+      await this.destroyCurrentDoc();
+    } else {
+      this.cancelAllRenders();
+    }
 
     this.currentDocBuffer = buffer;
     this.docName = name;
 
+    // Use local offline CMap and standard fonts for zero latency & offline resilience
     const loadingTask = pdfjsLib.getDocument({
       data: buffer.slice(0),
-      cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/cmaps/',
+      cMapUrl: './cmaps/',
       cMapPacked: true,
-      standardFontDataUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/standard_fonts/'
+      standardFontDataUrl: './standard_fonts/'
     });
 
     this.pdfDoc = await loadingTask.promise;
@@ -50,7 +125,7 @@ export class PdfEngine {
     this.currentPage = 1;
     this.rotation = 0;
 
-    // Cache page dimensions and outlines
+    // Cache page dimensions and outlines without keeping full page glyphs in memory
     await this.cacheDocInfo();
 
     this.onDocLoaded({
@@ -67,7 +142,15 @@ export class PdfEngine {
     for (let i = 1; i <= this.numPages; i++) {
       const page = await this.pdfDoc.getPage(i);
       const viewport = page.getViewport({ scale: 1.0 });
-      this.pageSizes.set(i, { width: viewport.width, height: viewport.height });
+      this.pageSizes.set(i, {
+        width: viewport.width,
+        height: viewport.height,
+        rotate: page.rotate || 0
+      });
+      // Immediately free parsed page operators in worker
+      if (typeof page.cleanup === 'function') {
+        page.cleanup();
+      }
     }
 
     try {
@@ -136,7 +219,6 @@ export class PdfEngine {
     this.layoutCols = cols;
     this.viewMode = 'continuous';
 
-    // Auto-scale zoom so all columns fit on screen
     if (this.pageSizes.size > 0 && this.container) {
       const firstSize = this.pageSizes.get(1) || { width: 800, height: 600 };
       const padding = 64;
@@ -164,6 +246,8 @@ export class PdfEngine {
     const pageEl = this.container.querySelector(`[data-page-num="${pageNum}"]`);
     if (pageEl) {
       pageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Immediately prioritize rendering this target page
+      this.queuePageRender(pageNum, true);
     }
   }
 
@@ -179,27 +263,84 @@ export class PdfEngine {
     }
   }
 
+  /**
+   * Master Virtualized Render Loop:
+   * Sets up sized placeholder containers for all pages, only mounts high-res
+   * canvases for visible & buffered pages to eliminate lag and out-of-memory crashes.
+   */
   async render() {
     if (!this.pdfDoc || !this.container) return;
     this.cancelAllRenders();
+    this.renderQueue = [];
+
+    if (this.viewportObserver) {
+      this.viewportObserver.disconnect();
+      this.viewportObserver = null;
+    }
+
+    // Release old canvas textures
+    for (const [pageNo, info] of this.pageCanvases.entries()) {
+      if (info.canvas) {
+        info.canvas.width = 0;
+        info.canvas.height = 0;
+      }
+      if (info.overlay) {
+        info.overlay.width = 0;
+        info.overlay.height = 0;
+      }
+    }
+    this.pageCanvases.clear();
+    this.renderedPages.clear();
 
     this.container.innerHTML = '';
     const wrapper = document.createElement('div');
     wrapper.className = `pdf-canvas-wrapper view-cols-${this.layoutCols}`;
     this.container.appendChild(wrapper);
 
+    // Build light placeholders with exact calculated dimensions
     for (let i = 1; i <= this.numPages; i++) {
       const pageContainer = this.createPageContainer(i);
       wrapper.appendChild(pageContainer);
-      this.renderSinglePageCanvas(i, pageContainer);
     }
-    this.setupIntersectionObserver(wrapper);
+
+    // Set up viewport observer for virtual on-demand rendering
+    this.setupVirtualizedObserver(wrapper);
+
+    // Initial render of current page and adjacent neighbours
+    const initialPages = [this.currentPage];
+    if (this.currentPage > 1) initialPages.push(this.currentPage - 1);
+    if (this.currentPage < this.numPages) initialPages.push(this.currentPage + 1);
+
+    for (const p of initialPages) {
+      this.queuePageRender(p, true);
+    }
   }
 
   createPageContainer(pageNo) {
     const pageBox = document.createElement('div');
     pageBox.className = 'pdf-page-container';
     pageBox.setAttribute('data-page-num', pageNo);
+
+    // Accurate dimension computation from cached sizes
+    const size = this.pageSizes.get(pageNo) || { width: 800, height: 1100, rotate: 0 };
+    const totalRotation = ((size.rotate || 0) + this.rotation) % 360;
+    const isTransposed = totalRotation === 90 || totalRotation === 270;
+    const baseW = isTransposed ? size.height : size.width;
+    const baseH = isTransposed ? size.width : size.height;
+    const scaledW = Math.floor(baseW * this.zoomScale);
+    const scaledH = Math.floor(baseH * this.zoomScale);
+
+    pageBox.style.width = `${scaledW}px`;
+    pageBox.style.height = `${scaledH}px`;
+
+    // Skeleton placeholder (prevents visual jump while streaming)
+    const placeholder = document.createElement('div');
+    placeholder.className = 'pdf-page-placeholder';
+    placeholder.innerHTML = `
+      <div class="pdf-placeholder-spinner"></div>
+      <span>Đang dựng bản vẽ trang ${pageNo}...</span>
+    `;
+    pageBox.appendChild(placeholder);
 
     const canvas = document.createElement('canvas');
     canvas.className = 'pdf-render-canvas';
@@ -217,28 +358,148 @@ export class PdfEngine {
     overlay.setAttribute('data-overlay-page', pageNo);
     pageBox.appendChild(overlay);
 
-    // Subtle page number stamp at bottom corner
+    // Page badge indicator
     const pageBadge = document.createElement('div');
     pageBadge.className = 'pdf-page-badge';
     pageBadge.textContent = `PAGE ${String(pageNo).padStart(2, '0')}`;
     pageBox.appendChild(pageBadge);
 
-    this.pageCanvases.set(pageNo, { canvas, overlay, pageBox, textLayerDiv });
+    this.pageCanvases.set(pageNo, {
+      canvas,
+      overlay,
+      pageBox,
+      textLayerDiv,
+      placeholder,
+      scaledW,
+      scaledH
+    });
+
     return pageBox;
   }
 
+  /**
+   * Virtualization Observer: Observes page containers entering and exiting the viewport
+   */
+  setupVirtualizedObserver(wrapper) {
+    const options = {
+      root: this.container,
+      rootMargin: '1000px 0px 1000px 0px', // Buffer 2-3 pages above & below for smooth scrolling
+      threshold: 0.05
+    };
+
+    this.viewportObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const pageNo = parseInt(entry.target.getAttribute('data-page-num'), 10);
+        if (isNaN(pageNo)) continue;
+
+        if (entry.isIntersecting) {
+          if (!this.renderedPages.has(pageNo)) {
+            this.queuePageRender(pageNo);
+          }
+          if (entry.intersectionRatio > 0.35 && this.currentPage !== pageNo) {
+            this.currentPage = pageNo;
+            this.onPageChange(this.currentPage, this.numPages);
+          }
+        } else {
+          // Evict distant offscreen page canvas bitmaps for huge documents (> 8 pages)
+          if (this.numPages > this.MAX_CACHED_PAGES && this.renderedPages.size > this.MAX_CACHED_PAGES) {
+            const distance = Math.abs(pageNo - this.currentPage);
+            if (distance > 3) {
+              this.evictPageCanvas(pageNo);
+            }
+          }
+        }
+      }
+    }, options);
+
+    wrapper.querySelectorAll('.pdf-page-container').forEach(el => this.viewportObserver.observe(el));
+  }
+
+  /**
+   * Queues a page for rendering, prioritized by distance to current view
+   */
+  queuePageRender(pageNo, highPriority = false) {
+    if (this.renderedPages.has(pageNo)) return;
+    if (this.renderQueue.includes(pageNo)) return;
+
+    if (highPriority) {
+      this.renderQueue.unshift(pageNo);
+    } else {
+      this.renderQueue.push(pageNo);
+      this.renderQueue.sort((a, b) => Math.abs(a - this.currentPage) - Math.abs(b - this.currentPage));
+    }
+
+    this.processRenderQueue();
+  }
+
+  async processRenderQueue() {
+    if (this.isProcessingQueue) return;
+    this.isProcessingQueue = true;
+
+    while (this.renderQueue.length > 0) {
+      if (this.renderTasks.size >= this.MAX_CONCURRENT_RENDERS) {
+        break;
+      }
+      const pageNo = this.renderQueue.shift();
+      const pageInfo = this.pageCanvases.get(pageNo);
+      if (!pageInfo || !pageInfo.pageBox) continue;
+
+      this.renderSinglePageCanvas(pageNo, pageInfo.pageBox).then(() => {
+        this.processRenderQueue();
+      }).catch(() => {
+        this.processRenderQueue();
+      });
+    }
+
+    this.isProcessingQueue = false;
+  }
+
+  /**
+   * Frees GPU texture memory for an offscreen page
+   */
+  evictPageCanvas(pageNo) {
+    if (!this.renderedPages.has(pageNo)) return;
+
+    const task = this.renderTasks.get(pageNo);
+    if (task) {
+      try { task.cancel(); } catch {}
+      this.renderTasks.delete(pageNo);
+    }
+
+    const info = this.pageCanvases.get(pageNo);
+    if (info) {
+      if (info.canvas) {
+        info.canvas.width = 0;
+        info.canvas.height = 0;
+      }
+      if (info.overlay) {
+        info.overlay.width = 0;
+        info.overlay.height = 0;
+      }
+      if (info.textLayerDiv) {
+        info.textLayerDiv.innerHTML = '';
+      }
+      if (info.placeholder) {
+        info.placeholder.classList.remove('hidden');
+      }
+    }
+
+    this.renderedPages.delete(pageNo);
+  }
+
   async renderSinglePageCanvas(pageNo, pageContainer) {
+    if (this.renderTasks.has(pageNo)) return;
+    const pageInfo = this.pageCanvases.get(pageNo);
+    if (!pageInfo) return;
+
+    const { canvas, overlay, textLayerDiv, placeholder } = pageInfo;
     const page = await this.pdfDoc.getPage(pageNo);
     const rotationTotal = (page.rotate + this.rotation) % 360;
     const viewport = page.getViewport({ scale: this.zoomScale, rotation: rotationTotal });
 
-    const canvas = pageContainer.querySelector('.pdf-render-canvas');
-    const overlay = pageContainer.querySelector('.pdf-annotation-overlay');
-    const textLayerDiv = pageContainer.querySelector('.textLayer');
-    if (!canvas || !overlay) return;
-
     const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
+    // Cap devicePixelRatio at 2.0 to avoid texture memory explosion on 4K/8K displays
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
 
     // Retina-sharp rendering
     canvas.width = Math.floor(viewport.width * dpr);
@@ -291,43 +552,31 @@ export class PdfEngine {
 
     try {
       await Promise.all([task.promise, textPromise]);
+      this.renderedPages.add(pageNo);
+      if (placeholder) {
+        placeholder.classList.add('hidden');
+      }
     } catch (err) {
       if (err.name !== 'RenderingCancelledException') {
-        console.error('Render error:', err);
+        console.error('Render error on page', pageNo, err);
       }
     } finally {
       ctx.restore();
       this.renderTasks.delete(pageNo);
+      // Free page glyph/operator lists in worker
+      if (typeof page.cleanup === 'function') {
+        page.cleanup();
+      }
+
       // Trigger overlay redraw event if registered
-      if (this.onPageRendered) {
+      if (this.onPageRendered && this.renderedPages.has(pageNo)) {
         this.onPageRendered(pageNo, viewport, overlay);
       }
     }
   }
 
-  setupIntersectionObserver(wrapper) {
-    const options = {
-      root: this.container,
-      threshold: 0.3
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          const pageNo = parseInt(entry.target.getAttribute('data-page-num'), 10);
-          if (!isNaN(pageNo) && this.currentPage !== pageNo) {
-            this.currentPage = pageNo;
-            this.onPageChange(this.currentPage, this.numPages);
-          }
-        }
-      }
-    }, options);
-
-    wrapper.querySelectorAll('.pdf-page-container').forEach(el => observer.observe(el));
-  }
-
   /**
-   * Search for text across all document text layers and highlight & select matches
+   * Search for text across document text layers and highlight matches
    */
   searchAndHighlight(query) {
     this.clearSearchHighlights();
@@ -341,7 +590,6 @@ export class PdfEngine {
     const regex = new RegExp(`(${trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const matches = [];
 
-    // Search across all rendered textLayer divs in the document
     const textLayers = this.container.querySelectorAll('.textLayer');
     textLayers.forEach(layer => {
       const pageNum = parseInt(layer.parentElement.getAttribute('data-page-num'), 10);
@@ -371,7 +619,6 @@ export class PdfEngine {
   activateSearchMatch(index) {
     if (index < 0 || index >= this.searchMatches.length) return;
     
-    // Deactivate previous
     this.container.querySelectorAll('.textLayer mark.search-match.current').forEach(m => {
       m.classList.remove('current');
     });
@@ -380,7 +627,6 @@ export class PdfEngine {
     match.el.classList.add('current');
     match.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    // Select the found text using browser Selection API
     try {
       const range = document.createRange();
       range.selectNodeContents(match.el);

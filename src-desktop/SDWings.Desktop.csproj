@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SDWings.X-PDF</AssemblyName>
+    <RootNamespace>SDWings.Desktop</RootNamespace>
+    
+    <AssemblyTitle>SDWings.X-PDF</AssemblyTitle>
+    <Product>SDWings.X-PDF · CAD Markup Workbench</Product>
+    <Company>namanarchi.vn</Company>
+    <Version>1.0.0</Version>
+    <Authors>namanarchi</Authors>
+    <Description>Siêu nhẹ, hiệu năng cao, mượt mà mở nhiều file PDF kiến trúc cùng lúc</Description>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+  </ItemGroup>
+
+  <!-- Auto copy built dist folder to output on Build and Publish -->
+  <ItemGroup>
+    <DistFiles Include="..\dist\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="CopyDistFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(DistFiles)" DestinationFolder="$(TargetDir)dist\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CopyDistFilesOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="@(DistFiles)" DestinationFolder="$(PublishDir)dist\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
