@@ -1,0 +1,434 @@
+/* ==========================================================================
+   APP LAYOUT & PRIMARY TOOLBARS (BD01 Architectural Conference Spec)
+   ========================================================================== */
+
+/* HEADER SECTION */
+.app-header {
+  padding: 16px 24px 8px 24px;
+  background-color: var(--bg-header);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* BRANDING & LOGO (SDWings.PDFReader by SDWings.X®) */
+.brand-logo-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: var(--font-main);
+  user-select: none;
+  cursor: pointer;
+  line-height: 1.22;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.brand-logo-container:hover {
+  opacity: 0.82;
+}
+
+.brand-logo-container:active {
+  transform: scale(0.98);
+}
+
+.brand-line-primary {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #111827;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.brand-main {
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.03em;
+}
+
+.brand-blue-dot {
+  color: var(--brand-blue);
+  font-weight: 900;
+  margin: 0 0.5px;
+}
+
+.brand-line-sub {
+  font-size: 11px;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  margin-top: 5px; /* Tách khoảng cách text trên và text dưới hài hòa */
+}
+
+.brand-by {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  margin-right: 1px;
+}
+
+.brand-sub-brand {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  gap: 0;
+}
+
+.brand-sub-name {
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.brand-sub-brand .brand-blue-dot {
+  color: var(--brand-blue);
+  font-weight: 900;
+  margin: 0;
+  padding: 0;
+}
+
+.brand-sub-x {
+  font-weight: 900;
+  color: var(--brand-blue);
+  margin-left: 0;
+  letter-spacing: -0.02em;
+}
+
+.brand-sub-reg {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--brand-blue);
+  vertical-align: super;
+  transform: translateY(-2px);
+  display: inline-block;
+  margin-left: 0.5px;
+}
+
+.brand-title-divider {
+  display: none !important;
+}
+
+.header-title {
+  display: none !important;
+}
+
+.header-right {
+  max-width: 440px;
+  text-align: right;
+}
+
+.header-note {
+  font-family: var(--font-main);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* PRIMARY TOOLBAR SECTION */
+.app-toolbar {
+  padding: 8px 24px 12px 24px;
+  background-color: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 90;
+}
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-pill {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--pill-radius);
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-light {
+  background-color: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-light:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  border-color: #cac7bf;
+}
+
+.btn-dark {
+  background-color: var(--border-strong);
+  color: #ffffff;
+  border: 1px solid var(--border-strong);
+}
+
+.btn-dark:hover:not(:disabled) {
+  background-color: #2a2a2a;
+}
+
+.btn-pill:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-pill.active {
+  background-color: var(--border-strong);
+  color: #ffffff;
+  border-color: var(--border-strong);
+}
+
+.btn-danger-pill {
+  color: var(--accent-alert);
+}
+
+.btn-danger-pill:hover {
+  background-color: #ffebee !important;
+  border-color: #ffcdd2 !important;
+}
+
+.tool-indicator-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: var(--pill-radius);
+  border: 1px solid var(--border-subtle);
+}
+
+/* MAIN WORKSPACE AREA & PANELS */
+.workspace-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+}
+
+.view-panel {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none !important;
+  overflow: auto;
+  background-color: var(--bg-app);
+}
+
+.view-panel.active-panel {
+  display: block !important;
+}
+
+#readerContainer {
+  background-color: var(--bg-app);
+  padding: 32px;
+  outline: none;
+}
+
+#readerContainer.active-panel {
+  display: flex !important;
+  justify-content: center;
+}
+
+#combineContainer,
+#splitContainer,
+#organizeContainer {
+  background-color: var(--bg-app);
+  z-index: 20;
+}
+
+.pdf-canvas-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  transition: all 0.2s ease-in-out;
+}
+
+.pdf-canvas-wrapper.view-cols-1,
+.pdf-canvas-wrapper.view-single,
+.pdf-canvas-wrapper.view-continuous {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.pdf-canvas-wrapper.view-cols-2,
+.pdf-canvas-wrapper.view-two-up {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  justify-content: center;
+  align-items: start;
+  gap: 20px;
+}
+
+.pdf-canvas-wrapper.view-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, auto));
+  justify-content: center;
+  align-items: start;
+  gap: 16px;
+}
+
+.pdf-canvas-wrapper.view-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto)); /* 2x2 grid */
+  justify-content: center;
+  align-items: start;
+  gap: 16px;
+}
+
+.pdf-spread-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.pdf-page-container {
+  position: relative;
+  background-color: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #d8d6cf;
+}
+
+.pdf-render-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* PDF.JS TEXT LAYER & SELECTION */
+.textLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  caret-color: #2563eb;
+  z-index: 5;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  pointer-events: auto !important;
+}
+
+.textLayer :is(span, br) {
+  color: transparent !important;
+  position: absolute;
+  white-space: pre;
+  cursor: text !important;
+  transform-origin: 0% 0%;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  pointer-events: auto !important;
+}
+
+.textLayer ::selection,
+.textLayer span::selection {
+  background: rgba(37, 99, 235, 0.35) !important;
+  color: transparent !important;
+}
+
+.textLayer ::-moz-selection,
+.textLayer span::-moz-selection {
+  background: rgba(37, 99, 235, 0.35) !important;
+  color: transparent !important;
+}
+
+.textLayer mark.search-match {
+  background: rgba(250, 204, 21, 0.65) !important;
+  color: transparent !important;
+  border-radius: 2px;
+  padding: 0 1px;
+  cursor: pointer;
+}
+
+.textLayer mark.search-match.current {
+  background: rgba(249, 115, 22, 0.9) !important;
+  box-shadow: 0 0 0 2px #ea580c;
+  z-index: 8;
+}
+
+.pdf-page-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  z-index: 12;
+}
+
+/* CURSOR MODES ON PDF OVERLAY */
+.cursor-pen .pdf-annotation-overlay { cursor: crosshair; }
+.cursor-highlight .pdf-annotation-overlay { cursor: crosshair; }
+.cursor-ruler .pdf-annotation-overlay { cursor: crosshair; }
+.cursor-text .pdf-annotation-overlay { cursor: text; }
+.cursor-rect .pdf-annotation-overlay { cursor: crosshair; }
+.cursor-cloud .pdf-annotation-overlay { cursor: crosshair; }
+.cursor-stamp .pdf-annotation-overlay { cursor: cell; }
+.cursor-signature .pdf-annotation-overlay { cursor: copy; }

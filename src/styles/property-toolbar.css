@@ -1,0 +1,312 @@
+/* ==========================================================================
+   FLOATING PROPERTY INSPECTOR TOOLBAR (Zero-Flicker & CAD Precision Styling)
+   ========================================================================== */
+
+.annot-property-toolbar {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 4px; /* Bo góc nhỏ tinh tế chuẩn CAD */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: 210;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.prop-toolbar-drag-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  color: #9ca3af;
+  font-size: 11px;
+  cursor: grab;
+}
+
+.prop-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px; /* Bo góc nhỏ */
+  font-family: var(--font-sans, -apple-system, sans-serif);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+  white-space: nowrap;
+}
+
+.prop-tool-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.prop-color-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.prop-color-dot.transparent-dot {
+  background: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
+              linear-gradient(-45deg, #e5e7eb 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #e5e7eb 75%),
+              linear-gradient(-45deg, transparent 75%, #e5e7eb 75%);
+  background-size: 6px 6px;
+  background-position: 0 0, 0 3px, 3px -3px, -3px 0;
+}
+
+.prop-val-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  color: #4b5563;
+}
+
+.prop-stepper-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px; /* Bo góc nhỏ */
+  height: 28px;
+  padding: 0 2px;
+}
+
+.prop-step-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.1s ease;
+}
+
+.prop-step-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.prop-step-val,
+.prop-step-val-input {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #111827;
+  padding: 0 2px;
+  width: 32px;
+  height: 22px;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.prop-step-val-input::-webkit-outer-spin-button,
+.prop-step-val-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.prop-step-val-input:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
+}
+
+.prop-step-val-input:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+/* OPACITY SLIDER INLINE ON PROPERTY TOOLBAR ("nút kéo") */
+.prop-slider-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px; /* Bo góc nhỏ */
+  user-select: none;
+}
+
+.prop-slider-label {
+  font-family: var(--font-sans, -apple-system, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.prop-range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 68px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  outline: none;
+  cursor: ew-resize;
+  margin: 0;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.prop-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+.prop-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #1d4ed8;
+}
+
+.prop-range-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.25);
+  background: #1e40af;
+}
+
+.prop-range-slider::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+}
+
+.prop-slider-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #111827;
+  min-width: 28px;
+  text-align: right;
+}
+
+.prop-slider-val-input {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #111827;
+  width: 28px;
+  height: 20px;
+  padding: 0 2px;
+  text-align: right;
+  border: 1px solid #d1d5db;
+  border-radius: 2px;
+  background: #ffffff;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.prop-slider-val-input::-webkit-outer-spin-button,
+.prop-slider-val-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.prop-slider-val-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.prop-slider-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-left: -3px;
+}
+
+.prop-del-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  font-family: var(--font-sans, -apple-system, sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.prop-del-btn:hover {
+  background: #dc2626;
+  border-color: #b91c1c;
+  color: #ffffff;
+}
+
+.prop-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: #e5e7eb;
+  margin: 0 2px;
+}
+
+.prop-edit-text-btn {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.prop-edit-text-btn:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.prop-stamp-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.cloud-arc-bullet {
+  font-size: 14px;
+  color: #d32f2f;
+  line-height: 1;
+}

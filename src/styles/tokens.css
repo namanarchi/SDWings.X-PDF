@@ -1,0 +1,67 @@
+/* ==========================================================================
+   SDWINGS.X-PDF · DESIGN TOKENS & RESET
+   Color Palette & Visual Tokens derived directly from BD01 Conference Spec
+   ========================================================================== */
+
+:root {
+  --bg-app: #f2f1ec;
+  --bg-header: #f2f1ec;
+  --bg-toolbar: #f2f1ec;
+  --bg-panel: #ffffff;
+  --bg-hover: #e7e6e0;
+  --bg-active: #121212;
+  --border-subtle: #dcd9d2;
+  --border-strong: #121212;
+  --text-primary: #121212;
+  --text-secondary: #6e6c66;
+  --text-tertiary: #9c9a93;
+  --accent-cad: #1e3a5f;
+  --accent-alert: #d32f2f;
+  --accent-green: #2e7d32;
+  --brand-blue: #2563eb;
+  --brand-blue-hover: #1d4ed8;
+  --brand-blue-light: #eff6ff;
+  --brand-dark: #111827;
+  --pill-radius: 4px;
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Inter, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-icon] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.lucide-icon, svg.lucide {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  user-select: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}

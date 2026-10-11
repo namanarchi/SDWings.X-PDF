@@ -1,0 +1,347 @@
+/* ==========================================================================
+   TOASTS, MODALS, SIGNATURE PAD & UNIVERSAL DRAG OVERLAYS
+   ========================================================================== */
+
+/* 1. TOAST NOTIFICATION SYSTEM */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  font-size: 13px;
+  font-weight: 500;
+  animation: toastSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s ease;
+}
+
+.toast-item.toast-success {
+  background: #065f46;
+  border: 1px solid #10b981;
+}
+
+.toast-item.toast-warning {
+  background: #78350f;
+  border: 1px solid #f59e0b;
+}
+
+.toast-item.toast-error {
+  background: #7f1d1d;
+  border: 1px solid #ef4444;
+}
+
+.toast-item.fade-out {
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+}
+
+.toast-msg {
+  white-space: nowrap;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+}
+.toast-close-btn:hover {
+  color: #ffffff;
+}
+
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 2. CUSTOM ARCHITECTURAL IN-APP MODAL (Confirm / Prompt) */
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 18, 18, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9990;
+  animation: fadeIn 0.15s ease;
+}
+
+.custom-modal-box {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 440px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-brand-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.custom-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.custom-modal-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.custom-modal-input-row {
+  margin: 6px 0;
+}
+
+.custom-modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.custom-modal-input:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.custom-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* 3. SIGNATURE MODAL & CANVAS PAD */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(18, 18, 18, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  width: 660px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 12px;
+}
+
+.modal-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.signature-canvas-wrapper {
+  position: relative;
+  background: #fbfbfa;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.signature-pad-canvas {
+  display: block;
+  cursor: crosshair;
+}
+
+.signature-guideline {
+  position: absolute;
+  bottom: 24px;
+  left: 30px;
+  right: 30px;
+  border-bottom: 1px dashed #d0cec7;
+  text-align: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #a8a69e;
+  padding-bottom: 4px;
+  pointer-events: none;
+}
+
+.signature-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sig-color-options {
+  display: flex;
+  gap: 8px;
+}
+
+.sig-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.sig-color-dot.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--border-strong);
+}
+
+.sig-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* 4. UNIVERSAL DRAG & DROP OVERLAY */
+.universal-drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(242, 241, 236, 0.94);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.universal-drag-overlay.visible {
+  display: flex;
+}
+
+.drag-box-boundary {
+  border: 2px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 50px 70px;
+  text-align: center;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+}
+
+.drag-brand-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  user-select: none;
+}
+
+.drag-brand-badge .drag-primary {
+  font-size: 34px;
+}
+
+.drag-brand-badge .drag-sub {
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.drag-brand-badge .drag-sub .brand-by {
+  font-size: 13px;
+}
+
+.drag-brand-badge .drag-sub .brand-sub-reg {
+  font-size: 10px;
+  transform: translateY(-5px);
+}
+
+.drag-prompt-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.drag-prompt-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.drag-prompt-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+}

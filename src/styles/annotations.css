@@ -1,0 +1,175 @@
+/* ==========================================================================
+   ANNOTATION TOOLS, DOCK, OVERLAYS & SELECTION UI
+   ========================================================================== */
+
+/* FLOATING VERTICAL ANNOTATION TOOLBAR (LEFT DOCK) */
+.floating-annot-bar {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 3px;
+  z-index: 70;
+  transition: all 0.2s ease;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.annot-tool-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.annot-tool-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.annot-tool-btn.active {
+  background: var(--brand-blue);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.annot-tool-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.annot-tool-btn.disabled:hover {
+  background: transparent;
+  color: #4b5563;
+}
+
+.tool-dropdown-notch {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 5px 5px;
+  border-color: transparent transparent #6b7280 transparent;
+  opacity: 0.9;
+}
+
+.annot-tool-btn.active .tool-dropdown-notch {
+  border-color: transparent transparent #ffffff transparent;
+}
+
+.annot-bar-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 3px 0;
+}
+
+/* HIDE REDUNDANT DOCK BUTTONS (IMAGE 4 & IMAGE 5) */
+#barColorTrigger,
+#barStrokeTrigger,
+#barClearAnnot {
+  display: none !important;
+}
+
+/* PDF ANNOTATION OVERLAY CANVAS */
+.pdf-annotation-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  cursor: default;
+}
+
+/* DIRECT CANVAS INLINE TEXT EDITING */
+.direct-inline-input {
+  position: absolute;
+  box-sizing: border-box;
+  outline: 2px dashed #2563eb !important;
+  border-radius: 4px;
+  z-index: 220;
+  font-family: inherit;
+  line-height: 1.25;
+  padding: 2px 6px;
+  transition: outline-color 0.1s ease;
+}
+
+.direct-inline-input:focus {
+  outline: 2px solid #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.direct-comment-input {
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.direct-text-input {
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+}
+
+/* INLINE CANVAS EDITOR CARD (LEGACY FALLBACK) */
+.inline-text-editor {
+  pointer-events: auto;
+}
+
+.inline-editor-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.16);
+  padding: 12px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: scaleIn 0.15s ease;
+}
+
+.inline-editor-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.inline-editor-textarea {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+.inline-editor-textarea:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.inline-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}

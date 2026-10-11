@@ -1,0 +1,16 @@
+/* ==========================================================================
+   SDWINGS.X-PDF · MODULAR ARCHITECTURAL STYLESHEET ENTRY
+   Separated into single-responsibility modules for easy maintenance
+   ========================================================================== */
+
+@import './styles/tokens.css';
+@import './styles/layout.css';
+@import './styles/navigation.css';
+@import './styles/tabs.css';
+@import './styles/annotations.css';
+@import './styles/property-toolbar.css';
+@import './styles/popovers.css';
+@import './styles/modals.css';
+@import './styles/modes.css';
+@import './styles/context-menu.css';
+@import './styles/dark-mode.css';

@@ -1,0 +1,254 @@
+/* ==========================================================================
+   MULTI-DOCUMENT WORKBENCH TABS (CAD Precision & Drag-and-Drop Reordering)
+   ========================================================================== */
+
+.app-document-tabs-bar {
+  display: flex;
+  align-items: center;
+  background: var(--bg-app, #f2f1ec);
+  border-bottom: 1px solid var(--border-subtle, #dcd9d2);
+  height: 38px;
+  padding: 0 16px;
+  z-index: 25;
+  user-select: none;
+  position: relative;
+}
+
+.tabs-scroll-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  flex: 1;
+  height: 100%;
+}
+
+.tabs-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual Document Tab */
+.doc-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 31px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-bottom: none;
+  border-radius: 5px 5px 0 0;
+  font-family: var(--font-sans, -apple-system, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: #6e6c66;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  position: relative;
+  max-width: 240px;
+  min-width: 130px;
+  margin-top: auto;
+}
+
+.doc-tab:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.04);
+  color: #121212;
+}
+
+.doc-tab.active {
+  background: #e6e0d4 !important; /* Màu chính xác từ Hình 3 */
+  color: #121212;
+  font-weight: 600;
+  border: 1px solid #121212;
+  border-top: 2px solid #121212;
+  border-bottom: 1px solid #e6e0d4;
+  height: 33px;
+  margin-bottom: -1px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.04);
+  z-index: 2;
+}
+
+/* Tab Dragging States */
+.doc-tab[draggable="true"] {
+  cursor: grab;
+}
+
+.doc-tab.is-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+  transform: scale(0.97);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.doc-tab.drop-indicator-left::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 4px;
+  bottom: 0;
+  width: 3px;
+  background-color: #121212;
+  border-radius: 2px;
+  z-index: 10;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.doc-tab.drop-indicator-right::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 4px;
+  bottom: 0;
+  width: 3px;
+  background-color: #121212;
+  border-radius: 2px;
+  z-index: 10;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Inner Tab Elements */
+.tab-drag-grip {
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+  font-size: 10px;
+  cursor: grab;
+  padding: 0 1px;
+  opacity: 0.6;
+  transition: opacity 0.1s ease;
+}
+
+.doc-tab:hover .tab-drag-grip {
+  opacity: 1;
+}
+
+.tab-file-icon {
+  display: flex;
+  align-items: center;
+  color: #ef4444; /* PDF Red icon */
+  flex-shrink: 0;
+}
+
+.doc-tab.active .tab-file-icon {
+  color: #dc2626;
+}
+
+.tab-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-size: 11.5px;
+}
+
+.tab-pages-count {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 4px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.doc-tab.active .tab-pages-count {
+  background: rgba(0, 0, 0, 0.08);
+  color: #121212;
+}
+
+.tab-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  transition: all 0.12s ease;
+  flex-shrink: 0;
+}
+
+.tab-close-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Tab Add Button (+) */
+.tab-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle, #dcd9d2);
+  background: transparent;
+  color: #6e6c66;
+  cursor: pointer;
+  margin-left: 6px;
+  margin-bottom: 2px;
+  transition: all 0.12s ease;
+  flex-shrink: 0;
+}
+
+.tab-add-btn:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.25);
+}
+
+/* Dark Mode Support */
+body.dark-mode .app-document-tabs-bar {
+  background: #18202f;
+  border-bottom-color: #2e3b52;
+}
+
+body.dark-mode .doc-tab {
+  background: #202b3f;
+  border-color: #2e3b52;
+  color: #94a3b8;
+}
+
+body.dark-mode .doc-tab:hover:not(.active) {
+  background: #27344d;
+  color: #f1f5f9;
+}
+
+body.dark-mode .doc-tab.active {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+  border-top-color: #3b82f6;
+}
+
+body.dark-mode .tab-pages-count {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+body.dark-mode .doc-tab.active .tab-pages-count {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+body.dark-mode .tab-add-btn {
+  background: #202b3f;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .tab-add-btn:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}

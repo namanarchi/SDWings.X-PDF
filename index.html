@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDWings.PDFReader · Professional Architectural PDF Workbench</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Top Header (Exact BD01 Conference Style with SDWingsX® Branding) -->
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-tag" id="headerCategoryTag">SDWINGS.PDFREADER / ARCHITECTURAL & BIM PDF WORKBENCH</span>
+        <div class="header-title-row">
+          <div class="brand-logo-container" id="brandLogoBtn" title="Nhấp để quay lại các trang PDF đang mở">
+            <div class="brand-line-primary">
+              <span class="brand-main">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-main">PDFReader</span>
+            </div>
+            <div class="brand-line-sub">
+              <span class="brand-by">by</span>
+              <span class="brand-sub-brand"><span class="brand-sub-name">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-sub-x">X</span><sup class="brand-sub-reg">®</sup></span>
+            </div>
+          </div>
+          <span class="brand-title-divider" style="display: none;">/</span>
+          <h1 class="header-title" id="documentTitle" style="display: none;"></h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Toolbar Primary & Secondary Rows -->
+    <section class="app-toolbar">
+      <!-- Primary Modes (Row 1) -->
+      <div class="toolbar-row">
+        <div class="pill-group" id="primaryModesGroup">
+          <button class="btn-pill btn-light" data-mode="combine" id="btnModeCombine">
+            <span data-icon="Files"></span>
+            <span>COMBINE PDF</span>
+          </button>
+          <button class="btn-pill btn-light" data-mode="split" id="btnModeSplit">
+            <span data-icon="Split"></span>
+            <span>SPLIT / EXTRACT</span>
+          </button>
+          <button class="btn-pill btn-light" data-mode="organize" id="btnModeOrganize">
+            <span data-icon="LayoutGrid"></span>
+            <span>ORGANIZE PAGES</span>
+          </button>
+        </div>
+
+        <div class="pill-group">
+          <label class="btn-pill btn-light" title="Mở file PDF từ máy tính">
+            <span data-icon="FolderOpen"></span>
+            <span>MỞ FILE PDF</span>
+            <input type="file" id="globalFileInput" multiple accept=".pdf,application/pdf" style="display:none" />
+          </label>
+          <button class="btn-pill btn-dark" id="btnExportPdf" title="Lưu & Xuất file PDF">
+            <span data-icon="Download"></span>
+            <span>LƯU & XUẤT PDF</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Document Tabs Bar (Multi-File Workbench Tabs) -->
+    <nav class="app-document-tabs-bar" id="documentTabsBar">
+      <div class="tabs-scroll-container" id="tabsScrollContainer"></div>
+      <button class="tab-add-btn" id="btnAddNewTab" title="Mở thêm tệp PDF mới (Ctrl+O)">
+        <span data-icon="Plus" data-size="14"></span>
+      </button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="workspace-area">
+      <!-- Floating Vertical Annotation Toolbar (Left Dock) -->
+      <aside class="floating-annot-bar" id="floatingAnnotBar">
+        <button class="annot-tool-btn active" data-tool="select" title="Chọn đối tượng (Select)">
+          <span data-icon="MousePointer" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="hand" title="Kéo bản vẽ (Hand Pan)">
+          <span data-icon="Hand" data-size="18"></span>
+        </button>
+        <div class="annot-bar-divider"></div>
+        <button class="annot-tool-btn" data-tool="highlight" title="Bút dạ quang (Highlighter)">
+          <span data-icon="Highlighter" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="pen" title="Bút vẽ tự do (Ink Pen)">
+          <span data-icon="PenTool" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="text" title="Chữ trực tiếp (Text Box)">
+          <span data-icon="Type" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="comment" title="Ghi chú đính kèm (Sticky Note)">
+          <span data-icon="MessageSquare" data-size="18"></span>
+        </button>
+        <div class="annot-bar-divider"></div>
+        <button class="annot-tool-btn" data-tool="ruler" title="Thước đo CAD (Ruler Dimension)">
+          <span data-icon="Ruler" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="cloud" title="Đám mây ghi chú kiến trúc (Revision Cloud)">
+          <span data-icon="Cloud" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="rect" title="Khung hình chữ nhật (Rectangle)">
+          <span data-icon="Square" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="shape" title="Hình dạng bất kỳ / Đa giác tự do (Photoshop Custom Shape)">
+          <span data-icon="Shapes" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="curve" title="Đường cong uốn lượn / Hình cong Photoshop (Curvature Pen Spline)">
+          <span data-icon="Spline" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="arrow" title="Mũi tên chỉ dẫn (Arrow)">
+          <span data-icon="ArrowRight" data-size="18"></span>
+        </button>
+        <div class="annot-bar-divider"></div>
+        <button class="annot-tool-btn" data-tool="stamp" title="Đóng dấu bản vẽ (Stamp)">
+          <span data-icon="Stamp" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="signature" title="Chữ ký điện tử (Signature)">
+          <span data-icon="PenLine" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" data-tool="image" id="barInsertImage" title="Chèn / Đính kèm hình ảnh (Insert Image)">
+          <span data-icon="Image" data-size="18"></span>
+        </button>
+        <input type="file" id="imageFileInput" accept="image/*" style="display: none;" />
+        <div class="annot-bar-divider"></div>
+        <button class="annot-tool-btn" id="barScaleCad" title="Tỷ lệ CAD (CAD Scale)">
+          <span data-icon="Scale" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" id="barUndo" title="Hoàn tác (Undo)">
+          <span data-icon="Undo2" data-size="18"></span>
+        </button>
+        <button class="annot-tool-btn" id="barRedo" title="Làm lại (Redo)">
+          <span data-icon="Redo2" data-size="18"></span>
+        </button>
+      </aside>
+
+      <!-- Floating Right Navigation & Action Strip -->
+      <aside class="floating-nav-strip" id="floatingNavStrip">
+        <div class="nav-page-box" id="stripPageBox" title="Số trang hiện tại (Nhấp để chuyển trang nhanh)">1</div>
+        <div class="nav-page-total" id="stripPageTotal" title="Tổng số trang">3</div>
+        <button class="strip-btn" id="stripPrevPage" title="Trang trước (Prev Page)">
+          <span data-icon="ChevronUp" data-size="18"></span>
+        </button>
+        <button class="strip-btn" id="stripNextPage" title="Trang sau (Next Page)">
+          <span data-icon="ChevronDown" data-size="18"></span>
+        </button>
+        <div class="strip-divider"></div>
+        <button class="strip-btn" id="stripSearch" title="Tìm kiếm văn bản trong tài liệu (Search)">
+          <span data-icon="Search" data-size="18"></span>
+        </button>
+        <button class="strip-btn" id="stripThemeToggle" title="Chế độ Ngày / Đêm">
+          <span data-icon="Moon" data-size="18"></span>
+        </button>
+        <button class="strip-btn" id="stripRotate" title="Xoay 90° theo chiều kim đồng hồ">
+          <span data-icon="RotateCw" data-size="18"></span>
+        </button>
+        <div class="strip-btn-wrapper">
+          <button class="strip-btn strip-view-trigger" id="stripViewTrigger" title="Sắp xếp trang: 1, 2, 3, 4 trang (Nhấp để chuyển)">
+            <span data-icon="BookOpen" data-size="18"></span>
+          </button>
+
+          <!-- View Mode Dropdown Popup Menu -->
+          <div class="view-mode-popup" id="viewModePopup" style="display: none;">
+            <div class="popup-item" data-action="1-page">
+              <span class="popup-icon" data-icon="FileText" data-size="16"></span>
+              <span class="popup-label">Sắp xếp 1 trang (Single)</span>
+              <span class="popup-check" id="check1Page">
+                <span data-icon="Check" data-color="#2563eb" data-size="14"></span>
+              </span>
+            </div>
+            <div class="popup-item" data-action="2-page">
+              <span class="popup-icon" data-icon="BookOpen" data-size="16"></span>
+              <span class="popup-label">Sắp xếp 2 trang (Song song)</span>
+              <span class="popup-check" id="check2Page"></span>
+            </div>
+            <div class="popup-item" data-action="3-page">
+              <span class="popup-icon" data-icon="Columns3" data-size="16"></span>
+              <span class="popup-label">Sắp xếp 3 trang (3 cột)</span>
+              <span class="popup-check" id="check3Page"></span>
+            </div>
+            <div class="popup-item" data-action="4-page">
+              <span class="popup-icon" data-icon="LayoutGrid" data-size="16"></span>
+              <span class="popup-label">Sắp xếp 4 trang (Lưới 2x2)</span>
+              <span class="popup-check" id="check4Page"></span>
+            </div>
+            <div class="popup-divider"></div>
+            <div class="popup-item" data-action="fit-page">
+              <span class="popup-icon" data-icon="Maximize2" data-size="16"></span>
+              <span class="popup-label">Khớp cả trang (Fit page)</span>
+            </div>
+            <div class="popup-item" data-action="fit-width">
+              <span class="popup-icon" data-icon="MoveHorizontal" data-size="16"></span>
+              <span class="popup-label">Khớp chiều rộng (Fit width)</span>
+              <span class="popup-check" id="checkFitWidth"></span>
+            </div>
+            <div class="popup-item" data-action="fullscreen">
+              <span class="popup-icon" data-icon="Monitor" data-size="16"></span>
+              <span class="popup-label">Toàn màn hình (Full screen)</span>
+            </div>
+          </div>
+        </div>
+        <div class="strip-divider"></div>
+        <button class="strip-btn" id="stripZoomIn" title="Phóng to (+)">
+          <span data-icon="ZoomIn" data-size="18"></span>
+        </button>
+        <button class="strip-btn" id="stripZoomOut" title="Thu nhỏ (-)">
+          <span data-icon="ZoomOut" data-size="18"></span>
+        </button>
+      </aside>
+
+      <!-- Floating In-Document Search Bar -->
+      <div class="pdf-search-bar" id="pdfSearchBar" style="display: none;">
+        <span class="search-bar-icon" data-icon="Search" data-size="16"></span>
+        <input type="text" class="search-bar-input" id="pdfSearchInput" placeholder="Tìm kiếm văn bản trong tài liệu..." autocomplete="off" />
+        <span class="search-bar-count" id="pdfSearchCount">0 / 0</span>
+        <button class="search-bar-btn" id="btnSearchPrev" title="Kết quả trước (Shift+Enter)">
+          <span data-icon="ChevronUp" data-size="14"></span>
+        </button>
+        <button class="search-bar-btn" id="btnSearchNext" title="Kết quả tiếp theo (Enter)">
+          <span data-icon="ChevronDown" data-size="14"></span>
+        </button>
+        <button class="search-bar-close" id="btnSearchClose" title="Đóng tìm kiếm (Esc)">
+          <span data-icon="X" data-size="14"></span>
+        </button>
+      </div>
+
+      <!-- 1. Reader Viewport -->
+      <div class="view-panel active-panel" id="readerContainer" tabindex="0"></div>
+
+      <!-- 2. Combine PDF Workbench -->
+      <div class="view-panel" id="combineContainer"></div>
+
+      <!-- 3. Split PDF Workbench -->
+      <div class="view-panel" id="splitContainer"></div>
+
+      <!-- 4. Organize Pages Workbench -->
+      <div class="view-panel" id="organizeContainer"></div>
+    </main>
+
+    <!-- Universal Drag & Drop Backdrop -->
+    <div class="universal-drag-overlay" id="universalDragOverlay">
+      <div class="drag-box-boundary">
+        <div class="drag-brand-badge">
+          <div class="brand-line-primary drag-primary">
+            <span class="brand-main">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-main">PDFReader</span>
+          </div>
+          <div class="brand-line-sub drag-sub">
+            <span class="brand-by">by</span>
+            <span class="brand-sub-brand"><span class="brand-sub-name">SDWings</span><span class="brand-blue-dot">.</span><span class="brand-sub-x">X</span><sup class="brand-sub-reg">®</sup></span>
+          </div>
+        </div>
+        <div class="drag-prompt-tag">BATCH IMPORT & COMBINE ENGINE</div>
+        <h2 class="drag-prompt-title">THẢ CÁC TỆP PDF VÀO ĐÂY</h2>
+        <p class="drag-prompt-sub">Tự động Mở hoặc Ghép nối (Combine) toàn bộ file được thả vào phần mềm</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
