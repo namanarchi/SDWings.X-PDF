@@ -30,6 +30,7 @@ export class PdfEngine {
     this.renderQueue = [];
     this.isProcessingQueue = false;
     this.viewportObserver = null;
+    this._scrollHandler = null;
     this.MAX_CONCURRENT_RENDERS = 2; // Keep worker responsive, zero freezing
     this.MAX_CACHED_PAGES = 8; // Max heavy canvases kept in VRAM for huge blueprints
 
@@ -48,6 +49,11 @@ export class PdfEngine {
   async destroyCurrentDoc() {
     this.cancelAllRenders();
     this.renderQueue = [];
+
+    if (this._scrollHandler && this.container) {
+      this.container.removeEventListener('scroll', this._scrollHandler);
+      this._scrollHandler = null;
+    }
 
     if (this.viewportObserver) {
       this.viewportObserver.disconnect();
@@ -244,8 +250,10 @@ export class PdfEngine {
     this.onPageChange(this.currentPage, this.numPages);
 
     const pageEl = this.container.querySelector(`[data-page-num="${pageNum}"]`);
-    if (pageEl) {
-      pageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (pageEl && this.container) {
+      // Use container-relative scroll to prevent scrolling ancestors (#app / window)
+      const targetScrollTop = pageEl.offsetTop - this.container.offsetTop;
+      this.container.scrollTo({ top: Math.max(0, targetScrollTop - 20), behavior: 'smooth' });
       // Immediately prioritize rendering this target page
       this.queuePageRender(pageNum, true);
     }
@@ -306,6 +314,9 @@ export class PdfEngine {
     // Set up viewport observer for virtual on-demand rendering
     this.setupVirtualizedObserver(wrapper);
 
+    // Setup scroll tracking for accurate active page indicator on large drawings
+    this.setupScrollListener();
+
     // Initial render of current page and adjacent neighbours
     const initialPages = [this.currentPage];
     if (this.currentPage > 1) initialPages.push(this.currentPage - 1);
@@ -316,10 +327,57 @@ export class PdfEngine {
     }
   }
 
+  setupScrollListener() {
+    if (this._scrollHandler && this.container) {
+      this.container.removeEventListener('scroll', this._scrollHandler);
+    }
+    let ticking = false;
+    this._scrollHandler = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          this.updateActivePageFromScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    this.container.addEventListener('scroll', this._scrollHandler, { passive: true });
+  }
+
+  updateActivePageFromScroll() {
+    if (!this.container || this.numPages <= 0) return;
+    const containerRect = this.container.getBoundingClientRect();
+    const midY = containerRect.top + containerRect.height / 2;
+
+    let closestPage = this.currentPage;
+    let minDistance = Infinity;
+
+    for (const [pageNo, info] of this.pageCanvases.entries()) {
+      if (!info.pageBox) continue;
+      const boxRect = info.pageBox.getBoundingClientRect();
+      if (boxRect.top <= midY && boxRect.bottom >= midY) {
+        closestPage = pageNo;
+        break;
+      }
+      const boxMid = boxRect.top + boxRect.height / 2;
+      const dist = Math.abs(boxMid - midY);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestPage = pageNo;
+      }
+    }
+
+    if (closestPage !== this.currentPage) {
+      this.currentPage = closestPage;
+      this.onPageChange(this.currentPage, this.numPages);
+    }
+  }
+
   createPageContainer(pageNo) {
     const pageBox = document.createElement('div');
     pageBox.className = 'pdf-page-container';
     pageBox.setAttribute('data-page-num', pageNo);
+    pageBox.setAttribute('data-page-index', pageNo - 1);
 
     // Accurate dimension computation from cached sizes
     const size = this.pageSizes.get(pageNo) || { width: 800, height: 1100, rotate: 0 };
@@ -383,8 +441,8 @@ export class PdfEngine {
   setupVirtualizedObserver(wrapper) {
     const options = {
       root: this.container,
-      rootMargin: '1000px 0px 1000px 0px', // Buffer 2-3 pages above & below for smooth scrolling
-      threshold: 0.05
+      rootMargin: '1200px 0px 1200px 0px', // Buffer 2-3 pages above & below for smooth scrolling
+      threshold: 0.01
     };
 
     this.viewportObserver = new IntersectionObserver((entries) => {
@@ -396,15 +454,11 @@ export class PdfEngine {
           if (!this.renderedPages.has(pageNo)) {
             this.queuePageRender(pageNo);
           }
-          if (entry.intersectionRatio > 0.35 && this.currentPage !== pageNo) {
-            this.currentPage = pageNo;
-            this.onPageChange(this.currentPage, this.numPages);
-          }
         } else {
           // Evict distant offscreen page canvas bitmaps for huge documents (> 8 pages)
           if (this.numPages > this.MAX_CACHED_PAGES && this.renderedPages.size > this.MAX_CACHED_PAGES) {
             const distance = Math.abs(pageNo - this.currentPage);
-            if (distance > 3) {
+            if (distance > 4 && pageNo !== this.currentPage) {
               this.evictPageCanvas(pageNo);
             }
           }
@@ -501,7 +555,7 @@ export class PdfEngine {
     // Cap devicePixelRatio at 2.0 to avoid texture memory explosion on 4K/8K displays
     const dpr = Math.min(window.devicePixelRatio || 1, 2.0);
 
-    // Retina-sharp rendering
+    // Retina-sharp rendering dimensions
     canvas.width = Math.floor(viewport.width * dpr);
     canvas.height = Math.floor(viewport.height * dpr);
     canvas.style.width = `${Math.floor(viewport.width)}px`;
@@ -521,7 +575,10 @@ export class PdfEngine {
     pageContainer.style.width = `${Math.floor(viewport.width)}px`;
     pageContainer.style.height = `${Math.floor(viewport.height)}px`;
 
+    // Ensure pristine white background so transparent PDF areas never produce black boxes
     ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.scale(dpr, dpr);
 
     const renderContext = {

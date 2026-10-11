@@ -20,25 +20,14 @@
   transition: all 0.2s ease;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 .floating-annot-bar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.floating-annot-bar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.floating-annot-bar::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.4);
-  border-radius: 4px;
-}
-
-.floating-annot-bar::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 114, 128, 0.7);
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .annot-tool-btn {

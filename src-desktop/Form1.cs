@@ -24,7 +24,7 @@ public partial class Form1 : Form
         Height = 900;
         StartPosition = FormStartPosition.CenterScreen;
         MinimumSize = new System.Drawing.Size(960, 640);
-        BackColor = System.Drawing.Color.FromArgb(17, 24, 39);
+        BackColor = System.Drawing.Color.FromArgb(242, 241, 236);
 
         webView = new WebView2
         {

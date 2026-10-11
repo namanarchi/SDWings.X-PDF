@@ -97,9 +97,10 @@ async function initApp() {
     }
   });
 
-  // Bind annotation overlay whenever a page canvas is rendered
+  // Bind annotation overlay whenever a page canvas is rendered and redraw existing annotations
   pdfEngine.onPageRendered = (pageNo, viewport, overlayCanvas) => {
     annotationManager.bindOverlay(pageNo - 1, overlayCanvas);
+    annotationManager.drawPageOverlay(pageNo - 1, overlayCanvas);
   };
 
   // 4. Initialize Combine Manager
@@ -807,10 +808,12 @@ function refreshAnnotationOverlays() {
 }
 
 function updateStatusBadges() {
-  const stripPageBox = document.getElementById('stripPageBox');
-  if (stripPageBox) stripPageBox.textContent = state.currentPage;
+  const stripPageCurrent = document.getElementById('stripPageCurrent');
+  if (stripPageCurrent) stripPageCurrent.textContent = state.currentPage;
   const stripPageTotal = document.getElementById('stripPageTotal');
   if (stripPageTotal) stripPageTotal.textContent = state.numPages;
+  const stripPageBox = document.getElementById('stripPageBox');
+  if (stripPageBox && !stripPageCurrent) stripPageBox.textContent = state.currentPage;
 }
 
 function updateUndoRedoButtons() {
